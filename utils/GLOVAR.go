@@ -18,8 +18,5 @@ const (
 )
 
 var (
-	// Buffer is used in writing process
-	Buffer []byte = make([]byte, BUFSIZE)
-	// BufferOffset represent size of content in buffer
-	BufferOffset int = 0
+	hdfsBuffer *Buffer = newBuffer()
 )
