@@ -29,3 +29,11 @@
     * 读写文件
   * 私有方法
     * 文件分块
+
+## 可供实现的方式
+
+`golang` 的 `go` 算是内置的特性，这个特性可以帮助我快速起多个纤程。
+一个纤程用来 `listen` 当前的 `Buffer.Offset`，如果到了 7，就直接输出到 `Packet` 里面。
+`Packet` 用另一个纤程 `listen`，如果看到 `Packet` 也满了，就把 `Packet` 输出到 `PacketQueue` 里面去。
+
+在这个过程中，每次都读入一个 `Chunk` 的大小给 `Buffer`，这里我觉得可以优化一下，`Buffer` 的类型不是 `[]byte`，直接用 `[]Chunk` 当类型。
