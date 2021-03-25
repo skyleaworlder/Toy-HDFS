@@ -1,0 +1,10 @@
+syntax="proto3";
+
+package proto;
+
+message PacketHeaderProto {
+    int64 offsetInBlock = 1;
+    int32 seqNo = 2;
+    bool lastPacketInBlock = 3;
+    int32 dataLen = 4;
+}
