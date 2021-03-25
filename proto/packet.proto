@@ -2,9 +2,16 @@ syntax="proto3";
 
 package proto;
 
+import "proto/chunk.proto";
+
 message PacketHeaderProto {
     int64 offsetInBlock = 1;
     int32 seqNo = 2;
     bool lastPacketInBlock = 3;
     int32 dataLen = 4;
+}
+
+message PacketProto {
+    PacketHeaderProto header = 1;
+    repeated ChunkProto packetData = 2;
 }
