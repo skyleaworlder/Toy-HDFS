@@ -29,22 +29,22 @@ func (pq *PacketQueue) GetLength() int {
 }
 
 // Push is to push a elem into queue
-func (pq *PacketQueue) Push(elem Packet) (Packet, error) {
+func (pq *PacketQueue) Push(elem Packet) error {
 	pq.mtx.Lock()
 	pq.elements = append(pq.elements, elem)
 	pq.mtx.Unlock()
-	return elem, nil
+	return nil
 }
 
 // Pop is to pop a elem from queue
-func (pq *PacketQueue) Pop() (out Packet, err error) {
+func (pq *PacketQueue) Pop() (out *Packet, err error) {
 	defer pq.mtx.Unlock()
 	pq.mtx.Lock()
 	if pq.isEmpty() {
-		return Packet{}, errors.New("PacketQueue.Pop: Queue empty")
+		return &Packet{}, errors.New("PacketQueue.Pop: Queue empty")
 	}
 
-	out = pq.elements[0]
+	out = &pq.elements[0]
 	pq.elements = pq.elements[1:]
 	return out, nil
 }
