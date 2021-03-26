@@ -1,0 +1,13 @@
+client:
+  ip: 127.0.0.1
+  port: :12001
+
+datanode:
+  ip: 127.0.0.1
+  port: :12004
+
+namenode:
+  ip: 127.0.0.1
+  port:
+    rcv-Client: :12005
+    rcv-DataNode: :12006
