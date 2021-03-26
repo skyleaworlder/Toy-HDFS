@@ -1,0 +1,36 @@
+syntax="proto3";
+
+package proto;
+
+message GetFileBlocksLocationRequestProto {
+    string FilePath = 1;
+}
+
+// BlockIP is the IP of block
+message BlockInfoProto {
+    string FilePathInFS = 1;
+    uint32 BlockIndex = 2;
+    bool LastBlockInFile = 3;
+    string BlockIP = 4;
+}
+
+message GetFileBlocksLocationResponseProto {
+    repeated BlockInfoProto Blocks = 1;
+}
+
+message CreateFileRequestProto {
+    string FilePath = 1;
+    uint32 BlockNum = 2;
+}
+
+message CreateFileResponseProto {
+    string Result = 1;
+}
+
+message DeleteFileRequestProto {
+    string FilePath = 1;
+}
+
+message DeleteFileResponseProto {
+    string Result = 1;
+}
