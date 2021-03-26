@@ -7,7 +7,11 @@
 package proto
 
 import (
+	context "context"
 	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -425,8 +429,25 @@ var file_client_namenode_proto_rawDesc = []byte{
 	0x52, 0x08, 0x46, 0x69, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x22, 0x31, 0x0a, 0x17, 0x44, 0x65,
 	0x6c, 0x65, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
 	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x16, 0x0a, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x32, 0x98, 0x02,
+	0x0a, 0x0e, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4e, 0x61, 0x6d, 0x65, 0x4e, 0x6f, 0x64, 0x65,
+	0x12, 0x6c, 0x0a, 0x15, 0x47, 0x65, 0x74, 0x46, 0x69, 0x6c, 0x65, 0x42, 0x6c, 0x6f, 0x63, 0x6b,
+	0x73, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x28, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2e, 0x47, 0x65, 0x74, 0x46, 0x69, 0x6c, 0x65, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x73, 0x4c,
+	0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x50, 0x72,
+	0x6f, 0x74, 0x6f, 0x1a, 0x29, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x46,
+	0x69, 0x6c, 0x65, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x73, 0x4c, 0x6f, 0x63, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x4b,
+	0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x12, 0x1d, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x4b, 0x0a, 0x0a, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x12, 0x1d, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x46, 0x69, 0x6c, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -453,8 +474,14 @@ var file_client_namenode_proto_goTypes = []interface{}{
 }
 var file_client_namenode_proto_depIdxs = []int32{
 	1, // 0: proto.GetFileBlocksLocationResponseProto.Blocks:type_name -> proto.BlockInfoProto
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
+	0, // 1: proto.ClientNameNode.GetFileBlocksLocation:input_type -> proto.GetFileBlocksLocationRequestProto
+	3, // 2: proto.ClientNameNode.CreateFile:input_type -> proto.CreateFileRequestProto
+	5, // 3: proto.ClientNameNode.DeleteFile:input_type -> proto.DeleteFileRequestProto
+	2, // 4: proto.ClientNameNode.GetFileBlocksLocation:output_type -> proto.GetFileBlocksLocationResponseProto
+	4, // 5: proto.ClientNameNode.CreateFile:output_type -> proto.CreateFileResponseProto
+	6, // 6: proto.ClientNameNode.DeleteFile:output_type -> proto.DeleteFileResponseProto
+	4, // [4:7] is the sub-list for method output_type
+	1, // [1:4] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -559,7 +586,7 @@ func file_client_namenode_proto_init() {
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_client_namenode_proto_goTypes,
 		DependencyIndexes: file_client_namenode_proto_depIdxs,
@@ -569,4 +596,156 @@ func file_client_namenode_proto_init() {
 	file_client_namenode_proto_rawDesc = nil
 	file_client_namenode_proto_goTypes = nil
 	file_client_namenode_proto_depIdxs = nil
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// ClientNameNodeClient is the client API for ClientNameNode service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type ClientNameNodeClient interface {
+	GetFileBlocksLocation(ctx context.Context, in *GetFileBlocksLocationRequestProto, opts ...grpc.CallOption) (*GetFileBlocksLocationResponseProto, error)
+	CreateFile(ctx context.Context, in *CreateFileRequestProto, opts ...grpc.CallOption) (*CreateFileResponseProto, error)
+	DeleteFile(ctx context.Context, in *DeleteFileRequestProto, opts ...grpc.CallOption) (*DeleteFileResponseProto, error)
+}
+
+type clientNameNodeClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewClientNameNodeClient(cc grpc.ClientConnInterface) ClientNameNodeClient {
+	return &clientNameNodeClient{cc}
+}
+
+func (c *clientNameNodeClient) GetFileBlocksLocation(ctx context.Context, in *GetFileBlocksLocationRequestProto, opts ...grpc.CallOption) (*GetFileBlocksLocationResponseProto, error) {
+	out := new(GetFileBlocksLocationResponseProto)
+	err := c.cc.Invoke(ctx, "/proto.ClientNameNode/GetFileBlocksLocation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientNameNodeClient) CreateFile(ctx context.Context, in *CreateFileRequestProto, opts ...grpc.CallOption) (*CreateFileResponseProto, error) {
+	out := new(CreateFileResponseProto)
+	err := c.cc.Invoke(ctx, "/proto.ClientNameNode/CreateFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *clientNameNodeClient) DeleteFile(ctx context.Context, in *DeleteFileRequestProto, opts ...grpc.CallOption) (*DeleteFileResponseProto, error) {
+	out := new(DeleteFileResponseProto)
+	err := c.cc.Invoke(ctx, "/proto.ClientNameNode/DeleteFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ClientNameNodeServer is the server API for ClientNameNode service.
+type ClientNameNodeServer interface {
+	GetFileBlocksLocation(context.Context, *GetFileBlocksLocationRequestProto) (*GetFileBlocksLocationResponseProto, error)
+	CreateFile(context.Context, *CreateFileRequestProto) (*CreateFileResponseProto, error)
+	DeleteFile(context.Context, *DeleteFileRequestProto) (*DeleteFileResponseProto, error)
+}
+
+// UnimplementedClientNameNodeServer can be embedded to have forward compatible implementations.
+type UnimplementedClientNameNodeServer struct {
+}
+
+func (*UnimplementedClientNameNodeServer) GetFileBlocksLocation(context.Context, *GetFileBlocksLocationRequestProto) (*GetFileBlocksLocationResponseProto, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFileBlocksLocation not implemented")
+}
+func (*UnimplementedClientNameNodeServer) CreateFile(context.Context, *CreateFileRequestProto) (*CreateFileResponseProto, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFile not implemented")
+}
+func (*UnimplementedClientNameNodeServer) DeleteFile(context.Context, *DeleteFileRequestProto) (*DeleteFileResponseProto, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFile not implemented")
+}
+
+func RegisterClientNameNodeServer(s *grpc.Server, srv ClientNameNodeServer) {
+	s.RegisterService(&_ClientNameNode_serviceDesc, srv)
+}
+
+func _ClientNameNode_GetFileBlocksLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFileBlocksLocationRequestProto)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientNameNodeServer).GetFileBlocksLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ClientNameNode/GetFileBlocksLocation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientNameNodeServer).GetFileBlocksLocation(ctx, req.(*GetFileBlocksLocationRequestProto))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientNameNode_CreateFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFileRequestProto)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientNameNodeServer).CreateFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ClientNameNode/CreateFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientNameNodeServer).CreateFile(ctx, req.(*CreateFileRequestProto))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ClientNameNode_DeleteFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteFileRequestProto)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ClientNameNodeServer).DeleteFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.ClientNameNode/DeleteFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ClientNameNodeServer).DeleteFile(ctx, req.(*DeleteFileRequestProto))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _ClientNameNode_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "proto.ClientNameNode",
+	HandlerType: (*ClientNameNodeServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetFileBlocksLocation",
+			Handler:    _ClientNameNode_GetFileBlocksLocation_Handler,
+		},
+		{
+			MethodName: "CreateFile",
+			Handler:    _ClientNameNode_CreateFile_Handler,
+		},
+		{
+			MethodName: "DeleteFile",
+			Handler:    _ClientNameNode_DeleteFile_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "client-namenode.proto",
 }

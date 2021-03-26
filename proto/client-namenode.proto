@@ -34,3 +34,14 @@ message DeleteFileRequestProto {
 message DeleteFileResponseProto {
     string Result = 1;
 }
+
+service ClientNameNode {
+    rpc GetFileBlocksLocation (GetFileBlocksLocationRequestProto)
+        returns (GetFileBlocksLocationResponseProto);
+
+    rpc CreateFile (CreateFileRequestProto)
+        returns (CreateFileResponseProto);
+
+    rpc DeleteFile (DeleteFileRequestProto)
+        returns (DeleteFileResponseProto);
+}
