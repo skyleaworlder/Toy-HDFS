@@ -23,7 +23,7 @@ func NewChunk(content []byte) (*Chunk, error) {
 		return &Chunk{}, err
 	}
 	chunk.Checksum = checksum
-	chunk.Content = content
+	copy(chunk.Content, content)
 	return chunk, nil
 }
 
