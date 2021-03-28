@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package proto;
+
+import "proto/hdfs.proto";
+
+enum Status {
+    SUCCESS = 0;
+    ERROR = 1;
+    ERROR_CHECKSUM = 2;
+    ERROR_EXISTS = 4;
+    CHECKSUM_OK = 6;
+    IN_PROGRESS = 12;
+}
+
+message ClientOperationHeaderProto {
+    ExtendedBlockInfoProto Block = 1;
+    string ClientIP = 2;
+}
+
+message ClientReadBlockProto {
+    ClientOperationHeaderProto Header = 1;
+    uint32 offset = 2;
+    uint32 length = 3;
+}
+
+message ClientWriteBlockProto {
+    ClientOperationHeaderProto Header = 1;
+    // for Client send this proto(ClientWriteBlockProto)
+    // thus, the first elem in Targets is the first DataNode
+    repeated DataNodeInfoProto Targets = 2;
+
+    enum PipelineStatus {
+        PIPELINE_SETUP_APPEND = 0; // is setting up
+        PIPELINE_DATA_STREAMING = 1; // work well
+        PIPELINE_CLOSE = 2; // pipeline end working
+    }
+    PipelineStatus Status = 3;
+    uint32 PipelineSize = 4;
+}
+
+message DataNodeTransferBlockProto {
+    ClientOperationHeaderProto Header = 1;
+    // the first elem in Targets is the next DataNode
+    repeated DataNodeInfoProto Targets = 2;
+}
+
+message PipelineAckProto {
+    uint32 SeqNo = 1;
+    repeated Status Reply = 2; // append the former ACK.Reply
+}

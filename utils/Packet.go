@@ -33,16 +33,16 @@ type PacketReadWriter interface {
 // Buf's length equal CHUNKCONTENTSIZE
 type PacketCtx struct {
 	rw                io.ReadWriter
-	OffsetInBlock     int64
-	SeqNo             int32
+	OffsetInBlock     uint64
+	SeqNo             uint32
 	LastPacketInBlock bool
-	DataLen           int32
+	DataLen           uint32
 	Buf               []byte
 	EmptyBuf          []byte
 }
 
 // NewPacketCtx is a constructor
-func NewPacketCtx(rw io.ReadWriter, OffsetInBlock int64, SeqNo int32, LastPacketInBlock bool, DataLen int32) (ctx *PacketCtx) {
+func NewPacketCtx(rw io.ReadWriter, OffsetInBlock uint64, SeqNo uint32, LastPacketInBlock bool, DataLen uint32) (ctx *PacketCtx) {
 	return &PacketCtx{
 		rw: rw, OffsetInBlock: OffsetInBlock, SeqNo: SeqNo,
 		LastPacketInBlock: LastPacketInBlock, DataLen: DataLen,
@@ -121,7 +121,7 @@ func getPacketContent(ctx *PacketCtx) (pkt Packet, err error) {
 }
 
 // NewNullPacket is a default construct
-func NewNullPacket(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dataLen int32) (pkt *Packet, err error) {
+func NewNullPacket(offsetInBlock uint64, seqNo uint32, lastPacketInBlock bool, dataLen uint32) (pkt *Packet, err error) {
 	return &Packet{
 		Header:       newPacketHeader(offsetInBlock, seqNo, lastPacketInBlock, dataLen),
 		PacketData:   []Chunk{},
@@ -130,7 +130,7 @@ func NewNullPacket(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dat
 	}, nil
 }
 
-func newPacketHeader(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dataLen int32) *pb.PacketHeaderProto {
+func newPacketHeader(offsetInBlock uint64, seqNo uint32, lastPacketInBlock bool, dataLen uint32) *pb.PacketHeaderProto {
 	return &pb.PacketHeaderProto{
 		OffsetInBlock:     offsetInBlock,
 		SeqNo:             seqNo,

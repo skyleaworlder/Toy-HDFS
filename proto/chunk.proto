@@ -1,9 +1,0 @@
-syntax="proto3";
-
-package proto;
-
-message ChunkProto {
-    // chunk(516 bytes) = checksum(4 bytes) + content(512 bytes)
-    uint32 checksum = 1;
-    bytes content = 2;
-}

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package proto;
+
+// Chunk(516 bytes) = checksum(4 bytes) + content(512 bytes)
+message ChunkProto {
+    uint32 Checksum = 1;
+    bytes Content = 2;
+}
+
+message PacketHeaderProto {
+    uint64 OffsetInBlock = 1;
+    uint32 SeqNo = 2;
+    bool LastPacketInBlock = 3;
+    uint32 DataLen = 4;
+}
+
+message PacketProto {
+    PacketHeaderProto Header = 1;
+    repeated ChunkProto PacketData = 2;
+}
+
+message ExtendedBlockInfoProto {
+    uint32 BlockId = 1; // the local id in local machine
+}
+
+message DataNodeIDProto {
+    string IP = 1;
+    string Host = 2;
+
+    uint32 TransferPort = 3;
+    uint32 InfoPort = 4;
+}
+
+message DataNodeInfoProto {
+    DataNodeIDProto ID = 1;
+    uint32 BlocksTotalNum = 2; // BlocksTotalNum is capacity of blcks
+    uint32 BlocksUsedNum = 3; // BlocksUsedNum is the number of used blocks
+}
