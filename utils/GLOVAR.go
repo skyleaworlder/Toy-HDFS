@@ -25,5 +25,7 @@ const (
 )
 
 var (
-	hdfsOutPutBuffer *Buffer = newBuffer()
+	hdfsOutPutBuffer       *Buffer      = newBuffer()
+	hdfsPacketWaitingQueue *PacketQueue = NewPacketQueue()
+	hdfsPacketACKQueue     *PacketQueue = NewPacketQueue()
 )
