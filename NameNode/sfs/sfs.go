@@ -31,11 +31,9 @@ var (
 // CreateFile is an api to create(register) file in fs
 func CreateFile(FileName string, BlockNum uint32) (err error) {
 	// check whether file exists or not
-	for existFileName, _ := range FileBlocksMap {
-		if existFileName == FileName {
-			log.Println("NameNode.fs.fs.go->CreateFile error: file already exists")
-			return errors.New("NameNode.fs.fs.go->CreateFile error: file already exists")
-		}
+	if isExist := isFileExist(FileName); isExist {
+		log.Println("NameNode.fs.fs.go->CreateFile error: file already exists")
+		return errors.New("NameNode.fs.fs.go->CreateFile error: file already exists")
 	}
 
 	idxArr, err := getEmptyBlockIdx(BlockNum)
@@ -87,4 +85,10 @@ func getEmptyBlockIdx(BlockNum uint32) (res []int, err error) {
 		}
 	}
 	return []int{}, errors.New("NameNode.fs.fs.go->getEmptyBlockIdx error: not enough space")
+}
+
+// to check whether file exists or not
+func isFileExist(FileName string) (isExist bool) {
+	_, isExist = FileBlocksMap[FileName]
+	return
 }
