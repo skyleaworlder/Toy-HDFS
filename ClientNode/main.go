@@ -1,10 +1,11 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"bufio"
 	"log"
+	"os"
 
+	"github.com/skyleaworlder/Toy-HDFS/ClientNode/grpcapi"
 	"github.com/skyleaworlder/Toy-HDFS/proto"
 	"github.com/skyleaworlder/Toy-HDFS/utils"
 	"google.golang.org/grpc"
@@ -31,18 +32,14 @@ func main() {
 	NameNodeClient := proto.NewClientNameNodeClient(NameNodeConn)
 
 	// Raise Client "offensive" service
-	for {
-		var instruction string
-		fmt.Scan(&instruction)
-
-		switch arr := utils.ParseInstr(instruction); arr[0] {
+	input := bufio.NewScanner(os.Stdin)
+	for input.Scan() {
+		instruction := input.Text()
+		switch instrs := utils.ParseInstr(instruction); instrs[0] {
 		case "create":
-			req := proto.CreateFileRequestProto{FilePath: arr[1], BlockNum: 4}
-			resp, err := NameNodeClient.CreateFile(context.Background(), &req)
-			if err != nil {
-				log.Println("ClientNode.main.go->main error:", err.Error())
-			}
-			fmt.Println(arr, resp)
+			grpcapi.PostCreateFileRequest(instrs, NameNodeClient)
+		case "delete":
+			grpcapi.PostDeleteFileRequest(instrs, NameNodeClient)
 		}
 	}
 
