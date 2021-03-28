@@ -1,12 +1,9 @@
 package utils
 
 import (
-	"io"
 	"log"
 	"net"
 	"os"
-	"runtime"
-	"time"
 )
 
 func sliceCopy(src []byte, srcOffset int, dst []byte, dstOffset, copyLen int) {
@@ -44,46 +41,4 @@ func (ops *HDFSOutputStream) Write(localPath string) {
 	}
 	log.Println(fd)
 
-}
-
-func produceChunkByFd(fd *os.File, offsetInBlock int64, exit chan bool) {
-	for offset, n, err := 0, 0, error(nil); err != io.EOF; offset += n {
-		select {
-		case <-exit:
-			runtime.Goexit()
-
-		default:
-			// this is a bottle-neck
-			log.Println("produceChunkByFd: get a new buf, offset is", offsetInBlock+int64(offset), len(hdfsOutPutBuffer.Buf))
-			buf := make([]byte, CHUNKCONTENTSIZE)
-
-			// if ReadAt cannot get a buffer filled with elem through fd
-			// e.g. fd.ReadAt(buf, 12) --> [12 10 12 10 13 14 0 0 0 0 0]
-			// then ReadAt will return err as io.EOF, instead of nil!!!
-			//
-			// ReadAt only return err as nil, when it can get a buffer like:
-			// [12 10 12 10 13 14 67 69 77 100 2]
-			//
-			// so I still need to process a "defective" buffer.
-			// I cannot do "
-			// 	if err == io.EOF { break; }
-			// " after the following assignment:
-			n, err = fd.ReadAt(buf, offsetInBlock+int64(offset))
-			chunk, _ := NewChunk(buf)
-
-			//log.Print("begin lock.")
-			hdfsOutPutBuffer.mtx.Lock()
-			hdfsOutPutBuffer.Buf <- *chunk
-			hdfsOutPutBuffer.BufferOffset++
-			// self-listener
-			if len(hdfsOutPutBuffer.Buf) == BUFCHUNKNUM {
-				hdfsOutPutBuffer.done <- true
-				hdfsOutPutBuffer.mtx.Unlock()
-				time.Sleep(20 * time.Microsecond)
-				break
-			}
-			hdfsOutPutBuffer.mtx.Unlock()
-			//log.Println("end lock.")
-		}
-	}
 }
