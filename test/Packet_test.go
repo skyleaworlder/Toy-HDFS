@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"testing"
 
@@ -9,17 +9,20 @@ import (
 )
 
 func Test_NewPacket(t *testing.T) {
-	log.Println(utils.BUFCHUNKNUM)
-
 	fd, _ := os.Open("D:\\CS·SB\\DS\\test.pdf")
-	offset := 0
-	for {
-		log.Println("offset:", offset)
-		_, newOffset, _ := utils.NewPacket(fd, int64(offset), 1, false, 5000)
-		//log.Println("pkt:", pkt)
-		log.Println("newOffset:", newOffset)
-		offset = int(newOffset)
-		log.Println("")
-		//time.Sleep(1 * time.Second)
+	//fd, _ := os.Open("./Chunk_test.go")
+
+	ctx := utils.NewPacketCtx(fd, 0, 1, true, 2)
+
+	pkts := make([]utils.Packet, 3)
+
+	ctx.Read(pkts)
+
+	// test part
+	for idx := range pkts {
+		for jdx, val := range pkts[idx].PacketData {
+			fmt.Println("jdx:", jdx, "; val:", val.Content)
+		}
+		fmt.Print("\n\n")
 	}
 }

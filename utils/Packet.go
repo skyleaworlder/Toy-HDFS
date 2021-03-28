@@ -1,8 +1,9 @@
 package utils
 
 import (
+	"errors"
+	"io"
 	"log"
-	"os"
 	"sync"
 
 	pb "github.com/skyleaworlder/Toy-HDFS/proto"
@@ -21,9 +22,102 @@ type Packet struct {
 	mtx          *sync.Mutex
 }
 
-// PacketPb is a base data structure defined by protobuf
-type PacketPb struct {
-	data *pb.PacketProto
+// PacketReadWriter is an interface
+type PacketReadWriter interface {
+	Read(pktBuf []Packet)
+	Write(pktBuf []Packet)
+}
+
+// PacketCtx is a user interface
+// rw(io.ReadWriter) is usually file descriptor
+// Buf's length equal CHUNKCONTENTSIZE
+type PacketCtx struct {
+	rw                io.ReadWriter
+	OffsetInBlock     int64
+	SeqNo             int32
+	LastPacketInBlock bool
+	DataLen           int32
+	Buf               []byte
+	EmptyBuf          []byte
+}
+
+// NewPacketCtx is a constructor
+func NewPacketCtx(rw io.ReadWriter, OffsetInBlock int64, SeqNo int32, LastPacketInBlock bool, DataLen int32) (ctx *PacketCtx) {
+	return &PacketCtx{
+		rw: rw, OffsetInBlock: OffsetInBlock, SeqNo: SeqNo,
+		LastPacketInBlock: LastPacketInBlock, DataLen: DataLen,
+		Buf:      make([]byte, CHUNKCONTENTSIZE),
+		EmptyBuf: make([]byte, CHUNKCONTENTSIZE),
+	}
+}
+
+// n means success number
+func (ctx *PacketCtx) Read(pkts []Packet) (n int, err error) {
+	if len(pkts) == 0 {
+		log.Println("utils.Packet.go->NewPacket.Read error: pkts empty buffer")
+		return 0, errors.New("utils.Packet.go->NewPacket.Read error: pkts empty buffer")
+	}
+
+	// generate pkts, and put them into pkts([]Packet)
+	for idx := range pkts {
+		pkts[idx], err = getPacketContent(ctx)
+		n++
+	}
+	return n, nil
+}
+
+// n means the number of write packets
+func (ctx *PacketCtx) Write(pkts []Packet) (n int, err error) {
+	if len(pkts) == 0 {
+		log.Println("utils.Packet.go->NewPacket.Write error: pkts empty buffer")
+		return 0, errors.New("utils.Packet.go->NewPacket.Write error: pkts empty buffer")
+	}
+
+	// push to waiting queue
+	for _, pkt := range pkts {
+		hdfsPacketWaitingQueue.Push(pkt)
+		n++
+	}
+	return n, nil
+}
+
+func (ctx *PacketCtx) refreshBuf() {
+	copy(ctx.Buf, ctx.EmptyBuf)
+}
+
+func getPacketContent(ctx *PacketCtx) (pkt Packet, err error) {
+	pktp, _ := NewNullPacket(ctx.OffsetInBlock, ctx.SeqNo, ctx.LastPacketInBlock, ctx.DataLen)
+	for len(pktp.PacketData) != PACKETCHUNKNUM {
+		// fill ctx.Buf with content through fd
+		// if ReadAt cannot get a buffer filled with elem through fd
+		// e.g. fd.Read(buf, 12) --> [12 10 12 10 13 14 0 0 0 0 0]
+		// then ReadAt will return err as nil
+		ctx.refreshBuf()
+		_, err := ctx.rw.Read(ctx.Buf)
+		if err == io.EOF {
+			pktp.mtx.Lock()
+			pktp.PacketData = append(pktp.PacketData, Chunk{})
+			pktp.PacketOffset++
+			pktp.mtx.Unlock()
+			continue
+		} else if err == nil {
+			// New a Chunk, put it into PacketData
+			Chunk, err := NewChunk(ctx.Buf)
+			//fmt.Println("Chunk:", Chunk, ctx.Buf)
+			if err != nil {
+				log.Println("utils.Packet.go->NewPacket.Read error: NewChunk error")
+				return pkt, err
+			}
+			pktp.mtx.Lock()
+			pktp.PacketData = append(pktp.PacketData, *Chunk)
+			pktp.PacketOffset++
+			pktp.mtx.Unlock()
+		} else {
+			log.Println("utils.Packet.go->getPacketContent error: ", err.Error())
+			return *pktp, err
+		}
+	}
+	return *pktp, nil
 }
 
 // NewNullPacket is a default construct
@@ -35,93 +129,6 @@ func NewNullPacket(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dat
 		mtx:          &sync.Mutex{},
 	}, nil
 }
-
-// NewPacket is a constructor of Packet
-// a fiber listen produceChunkByFd
-//
-// pkt = NewNullPacket() is better than pkt as global variable.
-// global variable "pkt" without sync.Mutex is not thread-safe
-// and do not support multi-thread generate pkt at the same time.
-func NewPacket(fd *os.File, offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dataLen int32) (pkt *Packet, newOffsetInBlock int64, err error) {
-	exit := make(chan bool)
-	defer func() { exit <- true }()
-	go produceChunkByFd(fd, offsetInBlock, exit)
-
-	pkt, _ = NewNullPacket(offsetInBlock, seqNo, lastPacketInBlock, dataLen)
-	for {
-		log.Println("NewPacket: in for")
-		// buffer is filled with chunks
-		// done(chan bool) is true, this fiber can get products from Buffer
-		if <-hdfsOutPutBuffer.done {
-			hdfsOutPutBuffer.mtx.Lock()
-			for len(hdfsOutPutBuffer.Buf) > 0 {
-				pkt.PacketData = append(pkt.PacketData, <-hdfsOutPutBuffer.Buf)
-				pkt.PacketOffset++
-			}
-			hdfsOutPutBuffer.mtx.Unlock()
-		}
-
-		// packet is filled with chunks
-		if pkt.PacketOffset == PACKETCHUNKNUM {
-			newOffsetInBlock = offsetInBlock + int64(pkt.PacketOffset*CHUNKCONTENTSIZE)
-			log.Println("return offset:", newOffsetInBlock)
-			return pkt, newOffsetInBlock, nil
-		}
-	}
-}
-
-/*
-// NewPacket is a constructor of Packet
-func NewPacket(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dataLen int32, data []byte) (*Packet, error) {
-	chunkArr := []Chunk{}
-	content := make([]byte, CHUNKCONTENTSIZE)
-	var i int = 0
-	for ; i+CHUNKCONTENTSIZE < len(data); i += CHUNKCONTENTSIZE {
-		byteNumToCopy := len(data) - i
-
-		// if i+CHUNKCONTENTSIZE >= len(data), it means that there might be a number of bytes
-		// (less than a chunk size) waiting to be put into a chunk.
-		if 0 < byteNumToCopy && byteNumToCopy < CHUNKCONTENTSIZE {
-			sliceCopy(data, i, content, 0, byteNumToCopy)
-		} else {
-			content = data[i : i+CHUNKCONTENTSIZE]
-		}
-
-		chunk, err := NewChunk(content)
-		if err != nil {
-			log.Println("utils.Packet.go->NewPacket error:", err.Error())
-			return &Packet{}, err
-		}
-		chunkArr = append(chunkArr, *chunk)
-	}
-
-	return &Packet{
-		Header:     newPacketHeader(offsetInBlock, seqNo, lastPacketInBlock, dataLen),
-		PacketData: chunkArr,
-	}, nil
-}
-
-// NewPacketPb is a constructor of PacketPb
-// i fail to abstruct this two function...
-func NewPacketPb(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dataLen int32, data []byte) (*PacketPb, error) {
-	chunkProtoArr := []*pb.ChunkProto{}
-	pkt, err := NewPacket(offsetInBlock, seqNo, lastPacketInBlock, dataLen, data)
-	if err != nil {
-		log.Println("utils.Packet.go->NewPacketPb error:", err.Error())
-		return &PacketPb{}, nil
-	}
-
-	for _, chunk := range pkt.PacketData {
-		chunkProtoArr = append(chunkProtoArr, Chunk2ChunkProto(&chunk))
-	}
-	return &PacketPb{
-		data: &pb.PacketProto{
-			Header:     newPacketHeader(offsetInBlock, seqNo, lastPacketInBlock, dataLen),
-			PacketData: chunkProtoArr,
-		},
-	}, nil
-}
-*/
 
 func newPacketHeader(offsetInBlock int64, seqNo int32, lastPacketInBlock bool, dataLen int32) *pb.PacketHeaderProto {
 	return &pb.PacketHeaderProto{
