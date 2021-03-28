@@ -1,0 +1,7 @@
+slaves:
+  - ip: 127.0.0.1
+    name: datanode1
+  - ip: 127.0.0.1
+    name: datanode2
+  - ip: 127.0.0.1
+    name: datanode3

@@ -6,11 +6,15 @@ import (
 	"net"
 
 	"github.com/skyleaworlder/Toy-HDFS/NameNode/grpcapi"
+	"github.com/skyleaworlder/Toy-HDFS/NameNode/sfs"
 	"github.com/skyleaworlder/Toy-HDFS/utils"
 )
 
 func main() {
+	// read config
 	cfg := utils.ReadConfig("./", "config-namenode.yaml")
+	sfs.InitFS()
+
 	portRcvClient := cfg.GetString("namenode.port.rcv-Client")
 	//portRcvDataNode := cfg.GetString("namenode.port.rcv-DataNode")
 
@@ -38,6 +42,7 @@ func main() {
 	go grpcapi.NameNodeServeClient(lsnClient)
 
 	// Raise NameNode "offsensive" service
+	// now NameNode do not need this part
 	for {
 		a := make(chan bool)
 		<-a
