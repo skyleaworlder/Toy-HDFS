@@ -11,7 +11,7 @@ message BlockInfoProto {
     string FilePathInFS = 1;
     uint32 BlockIndex = 2;
     bool LastBlockInFile = 3;
-    string BlockIP = 4;
+    repeated string BlockIPs = 4;
 }
 
 message GetFileBlocksLocationResponseProto {
