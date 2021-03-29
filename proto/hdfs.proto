@@ -30,6 +30,7 @@ message DataNodeBlockInfoProto {
     string BlockNamePrefix = 2;
     string BlockNameBody = 3;
     bool BlockFailed = 4;
+    uint32 BlockOffsetInFile = 5;
 }
 
 message ExtendedBlockInfoProto {
