@@ -20,6 +20,18 @@ message PacketProto {
     repeated ChunkProto PacketData = 2;
 }
 
+// DataNodeBlockInfo represents only one Block in DataNode.
+// This Proto do not need FileName of each Block.
+// DataNode only maintain "Blocks", reporting its status.
+// Service (FilePath/Name => Blocks) is provided in NameNode.
+message DataNodeBlockInfoProto {
+    uint32 BlockIdInSFS = 1;
+    // BlockName = Prefix + Body
+    string BlockNamePrefix = 2;
+    string BlockNameBody = 3;
+    bool BlockFailed = 4;
+}
+
 message ExtendedBlockInfoProto {
     uint32 BlockId = 1; // the local id in local machine
 }
@@ -34,6 +46,11 @@ message DataNodeIDProto {
 
 message DataNodeInfoProto {
     DataNodeIDProto ID = 1;
-    uint32 BlocksTotalNum = 2; // BlocksTotalNum is capacity of blcks
-    uint32 BlocksUsedNum = 3; // BlocksUsedNum is the number of used blocks
+    uint32 BlocksTotalNum = 2; // BlocksTotalNum is capacity of blcks in DataNode
+    uint32 BlocksUsedNum = 3; // BlocksUsedNum is the number of used blocks in DataNode
+}
+
+message StorageReportProto {
+    uint32 BlocksTotalNum = 1;
+    uint32 BlocksUsedNum = 2;
 }

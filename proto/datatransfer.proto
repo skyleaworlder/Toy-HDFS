@@ -28,21 +28,24 @@ message ClientWriteBlockProto {
     ClientOperationHeaderProto Header = 1;
     // for Client send this proto(ClientWriteBlockProto)
     // thus, the first elem in Targets is the first DataNode
-    repeated DataNodeInfoProto Targets = 2;
+    repeated DataNodeIDProto Targets = 2;
+    // BlockIdInSFS will be written into DataNode,
+    // in order to serve for heart-beat.
+    uint32 BlockIdInSFS = 3;
 
     enum PipelineStatus {
         PIPELINE_SETUP_APPEND = 0; // is setting up
         PIPELINE_DATA_STREAMING = 1; // work well
         PIPELINE_CLOSE = 2; // pipeline end working
     }
-    PipelineStatus Status = 3;
-    uint32 PipelineSize = 4;
+    PipelineStatus Status = 4;
+    uint32 PipelineSize = 5;
 }
 
 message DataNodeTransferBlockProto {
     ClientOperationHeaderProto Header = 1;
     // the first elem in Targets is the next DataNode
-    repeated DataNodeInfoProto Targets = 2;
+    repeated DataNodeIDProto Targets = 2;
 }
 
 message PipelineAckProto {

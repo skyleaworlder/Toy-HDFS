@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package proto;
+
+import "proto/hdfs.proto";
+
+message DataNodeRegistrationProto {
+    DataNodeIDProto ID = 1;
+    StorageReportProto Storage = 2;
+}
+
+message RegisterDataNodeRequestProto {
+    DataNodeRegistrationProto Registration = 1;
+}
+
+message RegisterDataNodeResponseProto {
+    DataNodeRegistrationProto Registration = 1;
+}
+
+message HeartbeatRequestProto {
+    DataNodeIDProto DataNodeID = 1;
+    repeated DataNodeBlockInfoProto BlocksInfo = 2;
+}
+
+message HeartbeatResponseProto {
+    string Result = 1;
+}
+
+service DataNodeNameNode {
+    rpc RegisterDataNode (RegisterDataNodeRequestProto)
+        returns (RegisterDataNodeResponseProto);
+    rpc SendHeartbeat (HeartbeatRequestProto)
+        returns (HeartbeatResponseProto);
+}

@@ -2,6 +2,8 @@ syntax="proto3";
 
 package proto;
 
+import "proto/hdfs.proto";
+
 message GetFileBlocksLocationRequestProto {
     string FilePath = 1;
 }
@@ -25,6 +27,11 @@ message CreateFileRequestProto {
 
 message CreateFileResponseProto {
     string Result = 1;
+    // BlocksIdInSFS represents Blocks in SFS
+    // its number according to CreateFileRequestProto.BlockNum
+    repeated uint32 BlocksIdInSFS = 2;
+    // Client will get DataNodes' detail in order to begin writing
+    repeated DataNodeInfoProto DataNodes = 3;
 }
 
 message DeleteFileRequestProto {
