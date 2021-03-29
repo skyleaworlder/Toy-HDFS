@@ -30,3 +30,14 @@ packet:
     chunkNum: 126
     totalSize: 65016B
 ```
+
+## 三、block file name
+
+命名格式统一为：
+
+```english
+[block-prefix]_[FilePathInSFS]_[idInSFS]_[LastBlockInFile]
+
+由于是一级文件系统，不需要考虑 slash 不能做文件名的事情：
+e.g. data_data_1_1 (data is prefix, data is FilePathInSFS, 1 is idInSFS, 1 means yes)
+```
