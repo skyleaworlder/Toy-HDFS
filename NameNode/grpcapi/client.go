@@ -18,7 +18,7 @@ type ClientNameNodeServer struct {
 
 // GetFileBlocksLocation is a method in interface "ClientNameNodeServer"
 func (s *ClientNameNodeServer) GetFileBlocksLocation(ctx context.Context, req *proto.GetFileBlocksLocationRequestProto) (resp *proto.GetFileBlocksLocationResponseProto, err error) {
-	FilePathInFS, BlocksIdx, BlocksIP, err := sfs.GetFileBlocksLocation(req.FilePath)
+	FilePathInFS, BlocksIdx, BlocksIP, err := sfs.SFS.GetFileBlocksLocation(req.GetFilePath())
 	if err != nil {
 		log.Println("NameNode.grpcapi.client.go->GetFileBlocksLocation error:", err.Error())
 		return nil, err
@@ -44,12 +44,12 @@ func (s *ClientNameNodeServer) GetFileBlocksLocation(ctx context.Context, req *p
 
 // CreateFile is a method in interface "ClientNameNodeServer"
 func (s *ClientNameNodeServer) CreateFile(ctx context.Context, req *proto.CreateFileRequestProto) (resp *proto.CreateFileResponseProto, err error) {
-	err = sfs.CreateFile(req.FilePath, req.BlockNum)
+	err = sfs.SFS.CreateFile(req.GetFilePath(), req.GetBlockNum())
 	if err != nil {
 		log.Println("NameNode.grpcapi.client.go->CreateFile error:", err.Error())
 		return
 	}
-	return &proto.CreateFileResponseProto{Result: "Create File " + req.FilePath + " Success!"}, nil
+	return &proto.CreateFileResponseProto{Result: "Create File " + req.GetFilePath() + " Success!"}, nil
 }
 
 // DeleteFile is a method in interface "ClientNameNodeServer"
