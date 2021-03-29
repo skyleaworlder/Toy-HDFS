@@ -13,5 +13,5 @@ func InitFS() {
 	for k, v := range cfg.GetStringMap("slaves") {
 		MachineArr[k] = net.ParseIP(v.(string))
 	}
-	fmt.Println("Hello World!", MachineArr)
+	fmt.Println("SFS init process done.", MachineArr)
 }
